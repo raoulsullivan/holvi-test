@@ -58,23 +58,26 @@ class AccountViewsTestCase(TestCase):
             'balance': '5.00',
         }
 
-    def test_transaction(self):
+    def test_transactions(self):
         """ Should get a list of serialised transactions """
         account = Account.objects.first()
-        url = reverse('account-transaction', args=(account.uuid,))
+        url = reverse('account-transactions', args=(account.uuid,))
         self.client.login(username=self.superuser.username, password='derp')
         response = self.client.get(url)
         assert response.status_code == 200
         assert len(response.json()) == 5
-        transaction_1 = account.transactions.all()[0]
+        # Should get the most recent transaction *first*
+        most_recent_transaction = account.transactions.order_by(
+            '-create_time', '-transaction_date'
+        ).first()
         expected_response = {
-            'uuid': str(transaction_1.uuid),
+            'uuid': str(most_recent_transaction.uuid),
             'account': str(account.uuid),
             'transaction_date': datetime.datetime.today().date().isoformat(),
             'amount': '1.00',
-            'description': 'Transaction 0',
+            'description': 'Transaction 4',
             'active': True,
-            'create_time': transaction_1.create_time.strftime(TIMESTAMP_FORMAT),
-            'update_time': transaction_1.update_time.strftime(TIMESTAMP_FORMAT),
+            'create_time': most_recent_transaction.create_time.strftime(TIMESTAMP_FORMAT),
+            'update_time': most_recent_transaction.update_time.strftime(TIMESTAMP_FORMAT),
         }
         self.assertEqual(response.json()[0], expected_response)

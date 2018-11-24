@@ -53,15 +53,19 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
-    def transaction(self, request, pk=None): #pylint: disable=C0103
-        """ Retrieves the transaction listing"""
+    def transactions(self, request, pk=None): #pylint: disable=C0103
+        """ Retrieves the transaction listing for the account
+        Orderd with most recently transacted first
+        TODO - this will require pagination
+        """
         account = self.get_object()
 
         # Users may not interact with Transactions that are not 'active'
         # TODO - behaviour here dependent on the auth framework.
         # We currently assume only staff users have access
         if request.user.is_staff:
-            query = Transaction.objects.filter(account=account)
+            query = Transaction.objects.filter(account=account).\
+                order_by('-create_time', '-transaction_date')
         else:
             raise NotImplementedError()
             #query = Transaction.objects.filter(account=account, active=True)
