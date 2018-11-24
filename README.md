@@ -22,7 +22,9 @@ See requirements.txt, but it's Django
 
 
 ## Database
-SQLlite. Use `python manage.py migrate` to set up.
+SQLlite.
+1. Use `python manage.py migrate` to set up.
+2. Create an initial user with `python manage.py createsuperuser`
 
 
 ## Change control
