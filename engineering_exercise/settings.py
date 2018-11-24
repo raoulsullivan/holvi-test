@@ -126,6 +126,6 @@ STATIC_URL = '/static/'
 # https://www.django-rest-framework.org/
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.DjangoModelPermissions'
     ]
 }

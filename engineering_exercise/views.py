@@ -22,7 +22,6 @@ class AccountSerializer(serializers.HyperlinkedModelSerializer):
         """ Configuration for the Serialiser """
         model = Account
         fields = ('url', 'uuid', 'name', 'balance', 'user')
-        allow = ('GET',)
 
 
 class UserViewSet(viewsets.ModelViewSet): # pylint: disable=R0901
