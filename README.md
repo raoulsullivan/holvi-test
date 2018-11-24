@@ -8,17 +8,17 @@ This repo is a response to the Holvi transactions API exercise. The specific tas
 
 
 
-# Python environment setup
+# Python environment setup and installation
 
 ## Virtual environment
 It's highly recommended to use a virtual environment to ensure consistency.
-Please read about pyenv or similar for your system if this is new to you.
+Please read about pyenv or similar for your environment if this is new to you.
 
 ## Python version
 The project was built in Python 3.4.6
 
 ## Required packages
-See requirements.txt
+See requirements.txt, but it's Django
 
 
 # Change control
@@ -28,3 +28,9 @@ No external changes possible - this is a repo for an interview test, not an actu
 # Coding style
 PEP8
 Pylintrc included
+
+
+# Running the project
+It's Django, so:
+1. Change to your virtual environment
+2. `python manage.py runserver`
