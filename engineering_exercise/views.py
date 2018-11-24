@@ -46,6 +46,7 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
 
+
     @action(detail=True, methods=['get'])
     def balance(self, request, pk=None): #pylint: disable=C0103
         """ Retrieves the balance"""
@@ -53,16 +54,13 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
         serializer = AccountBalanceSerializer(account, many=False)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['get'])
-    def transactions(self, request, pk=None): #pylint: disable=C0103
-        """ Retrieves the transaction listing for the account
-        Ordered with most recently transacted first
-        """
-        account = self.get_object()
 
-        # Users may not interact with Transactions that are not 'active'
-        # TODO - behaviour here dependent on the auth framework.
-        # We currently assume only staff users have access
+    @staticmethod
+    def _transactions_get(request, account):
+        """ Customers may not interact with Transactions that are not 'active'
+        TODO - behaviour here dependent on the auth framework.
+        We currently assume only staff users, not customers, have access
+        """
         if request.user.is_staff:
             query = Transaction.objects.filter(account=account).\
                 order_by('-create_time', '-transaction_date')
@@ -77,3 +75,23 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
         paginated_queryset = paginator.paginate_queryset(transactions, request)
         serializer = TransactionSerializer(paginated_queryset, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+    @staticmethod
+    def _transactions_post(request, account):
+        raise NotImplementedError()
+
+
+    @action(detail=True, methods=['get', 'post'])
+    def transactions(self, request, pk=None): #pylint: disable=C0103
+        """ For interacting with Transactions on this Account
+        GET - Retrieves the Transaction listing for the Account
+            Ordered with most recently transacted first
+        POST - Creates a new Transaction on the Account
+        """
+        account = self.get_object()
+
+        if request.method == 'POST':
+            return self._transactions_post(request, account)
+
+        return self._transactions_get(request, account)
