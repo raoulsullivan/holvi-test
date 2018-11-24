@@ -16,6 +16,7 @@ class Account(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=20)
     balance = models.DecimalField(max_digits=15, decimal_places=2)
+    # TODO - decimals probably a bad idea - store int instead
     user = models.ForeignKey('auth.User', on_delete=models.PROTECT)
 
 

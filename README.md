@@ -44,3 +44,8 @@ Uses pytest and pytest-cov `pytest --cov=engineering_exercise`
 It's Django, so:
 1. Change to your virtual environment
 2. `python manage.py runserver`
+
+
+## TODOs
+Thoughts that are not stories, code cleanup, musings for others, etc.
+`grep -r -i --include \*.* TODO .`
