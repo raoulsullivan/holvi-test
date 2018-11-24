@@ -1,4 +1,4 @@
-"""transactionapi URL Configuration
+"""engineering_exercise URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -16,6 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-urlpatterns = [ #pylint: disable=C0103
+urlpatterns = [
     path('admin/', admin.site.urls),
 ]
