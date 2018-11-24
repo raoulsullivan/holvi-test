@@ -8,29 +8,37 @@ This repo is a response to the Holvi transactions API exercise. The specific tas
 
 
 
-# Python environment setup and installation
+## Python environment setup and installation
 
-## Virtual environment
+### Virtual environment
 It's highly recommended to use a virtual environment to ensure consistency.
 Please read about pyenv or similar for your environment if this is new to you.
 
-## Python version
+### Python version
 The project was built in Python 3.4.6
 
-## Required packages
+### Required packages
 See requirements.txt, but it's Django
 
 
-# Change control
+## Database
+SQLlite. Use `python manage.py migrate` to set up.
+
+
+## Change control
 No external changes possible - this is a repo for an interview test, not an actual project!
 
 
-# Coding style
+## Coding style
 PEP8
 Pylintrc included
 
 
-# Running the project
+## Tests
+Uses pytest and pytest-cov `pytest --cov=engineering_exercise`
+
+
+## Running the project
 It's Django, so:
 1. Change to your virtual environment
 2. `python manage.py runserver`
