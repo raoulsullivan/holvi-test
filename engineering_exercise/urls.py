@@ -17,11 +17,12 @@ from django.contrib import admin
 from django.conf.urls import include, url
 from django.urls import path
 from rest_framework import routers
-from .views import UserViewSet
+from .views import UserViewSet, AccountViewSet
 
 
 router = routers.DefaultRouter() #pylint: disable=C0103
 router.register('users', UserViewSet)
+router.register('account', AccountViewSet)
 
 
 urlpatterns = [ #pylint: disable=C0103
