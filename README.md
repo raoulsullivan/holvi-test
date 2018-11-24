@@ -33,7 +33,7 @@ No external changes possible - this is a repo for an interview test, not an actu
 
 ## Coding style
 PEP8
-Pylintrc included
+Pylintrc included `pylint --load-plugins pylint_django engineering_exercise/`
 
 
 ## Tests
