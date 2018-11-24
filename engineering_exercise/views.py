@@ -2,7 +2,7 @@
 
 Implementations of the Django REST framework pattern
 """
-from rest_framework import serializers, viewsets, exceptions
+from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
