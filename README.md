@@ -8,14 +8,23 @@ This repo is a response to the Holvi transactions API exercise. The specific tas
 
 
 
-## Python environment setup
+# Python environment setup
 
-### Virtual environment
+## Virtual environment
 It's highly recommended to use a virtual environment to ensure consistency.
 Please read about pyenv or similar for your system if this is new to you.
 
-### Python version
+## Python version
 The project was built in Python 3.4.6
 
-### Required packages
+## Required packages
 See requirements.txt
+
+
+# Change control
+No external changes possible - this is a repo for an interview test, not an actual project!
+
+
+# Coding style
+PEP8
+Pylintrc included
