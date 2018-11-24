@@ -60,7 +60,6 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
         """
         account = self.get_object()
 
-
         # Users may not interact with Transactions that are not 'active'
         # TODO - behaviour here dependent on the auth framework.
         # We currently assume only staff users have access
