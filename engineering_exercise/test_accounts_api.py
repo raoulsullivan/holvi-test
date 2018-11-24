@@ -65,7 +65,7 @@ class AccountViewsTestCase(TestCase):
         self.client.login(username=self.superuser.username, password='derp')
         response = self.client.get(url)
         assert response.status_code == 200
-        assert len(response.json()) == 5
+        assert len(response.json()['results']) == 5
         # Should get the most recent transaction *first*
         most_recent_transaction = account.transactions.order_by(
             '-create_time', '-transaction_date'
@@ -80,4 +80,4 @@ class AccountViewsTestCase(TestCase):
             'create_time': most_recent_transaction.create_time.strftime(TIMESTAMP_FORMAT),
             'update_time': most_recent_transaction.update_time.strftime(TIMESTAMP_FORMAT),
         }
-        self.assertEqual(response.json()[0], expected_response)
+        self.assertEqual(response.json()['results'][0], expected_response)

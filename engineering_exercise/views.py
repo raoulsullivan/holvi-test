@@ -4,6 +4,7 @@ Implementations of the Django REST framework pattern
 """
 from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from fintech.models import Account, Transaction
@@ -55,10 +56,10 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
     @action(detail=True, methods=['get'])
     def transactions(self, request, pk=None): #pylint: disable=C0103
         """ Retrieves the transaction listing for the account
-        Orderd with most recently transacted first
-        TODO - this will require pagination
+        Ordered with most recently transacted first
         """
         account = self.get_object()
+
 
         # Users may not interact with Transactions that are not 'active'
         # TODO - behaviour here dependent on the auth framework.
@@ -72,5 +73,8 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
 
         transactions = query.all()
 
-        serializer = TransactionSerializer(transactions, many=True)
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        paginated_queryset = paginator.paginate_queryset(transactions, request)
+        serializer = TransactionSerializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
