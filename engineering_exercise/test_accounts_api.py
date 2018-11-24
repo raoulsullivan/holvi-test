@@ -36,21 +36,6 @@ class AccountViewsTestCase(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
 
-    def test_account_list_disabled(self):
-        """ The list view isn't needed yet """
-        url = reverse('account-list')
-        self.client.login(username=self.superuser.username, password='derp')
-        response = self.client.get(url)
-        assert response.status_code == 404
-
-    def test_account_retrieve_disabled(self):
-        """ The detail view isn't needed yet """
-        account = Account.objects.first()
-        url = reverse('account-detail', args=(account.uuid,))
-        self.client.login(username=self.superuser.username, password='derp')
-        response = self.client.get(url)
-        assert response.status_code == 404
-
     def test_account_balance(self):
         """ The balance view should do what it says on the tin """
         account = Account.objects.first()
