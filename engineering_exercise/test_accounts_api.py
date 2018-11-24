@@ -18,9 +18,33 @@ class AccountViewsTestCase(TestCase):
         assert Account.objects.count() == 20
 
     def test_account_authentication(self):
-        url = reverse('account-list')
+        account = Account.objects.first()
+        url = reverse('account-balance', args=(account.uuid,))
         response = self.client.get(url)
         assert response.status_code == 403
         self.client.login(username=self.superuser.username, password='derp')
         response = self.client.get(url)
         assert response.status_code == 200
+
+    def test_account_list_disabled(self):
+        url = reverse('account-list')
+        self.client.login(username=self.superuser.username, password='derp')
+        response = self.client.get(url)
+        assert response.status_code == 404
+
+    def test_account_retrieve_disabled(self):
+        account = Account.objects.first()
+        url = reverse('account-detail', args=(account.uuid,))
+        self.client.login(username=self.superuser.username, password='derp')
+        response = self.client.get(url)
+        assert response.status_code == 404
+
+    def test_account_balance(self):
+        account = Account.objects.first()
+        url = reverse('account-balance', args=(account.uuid,))
+        self.client.login(username=self.superuser.username, password='derp')
+        response = self.client.get(url)
+        assert response.json() == {
+            'uuid': str(account.uuid),
+            'balance': '0.00',
+        }
