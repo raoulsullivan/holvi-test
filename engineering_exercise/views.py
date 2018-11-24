@@ -10,35 +10,36 @@ from fintech.models import Account
 
 
 class AccountSerializer(serializers.HyperlinkedModelSerializer):
-    """ Serializers define the API representation. """
+    """ Serialises the base information regarding an Account """
     class Meta: #pylint: disable=R0903
-        """ Configuration for the Serialiser """
+        """ All fields """
         model = Account
-        fields = ('url', 'uuid', 'balance')
+        fields = ('url', 'uuid', 'name', 'user', 'balance')
 
 class AccountBalanceSerializer(serializers.HyperlinkedModelSerializer):
-    """ Serializers define the API representation. """
+    """ Serialises the Balance information for an Account only. """
     class Meta: #pylint: disable=R0903
-        """ Configuration for the Serialiser """
+        """ Only Balance and UUID """
         model = Account
         fields = ('uuid', 'balance')
 
 
 class AccountViewSet(viewsets.ReadOnlyModelViewSet): # pylint: disable=R0901
-    """ Allows users to interact with the Account objet"""
+    """ Allows users to interact with the Account object"""
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         # No use case yet, overridden
         raise exceptions.NotFound()
 
-    def retrieve(self, request, pk):
+    def retrieve(self, request, *args, **kwargs):
         # No use case yet, overridden
         raise exceptions.NotFound()
 
     @action(detail=True, methods=['get'])
-    def balance(self, request, pk=None):
+    def balance(self, request, pk=None): #pylint: disable=C0103
+        """ Retrieves the balance"""
         account = self.get_object()
         serializer = AccountBalanceSerializer(account, many=False)
         return Response(serializer.data)
