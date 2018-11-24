@@ -2,7 +2,7 @@
 
 Implementations of the Django REST framework pattern
 """
-from rest_framework import serializers, viewsets, exceptions
+from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -24,18 +24,10 @@ class AccountBalanceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('uuid', 'balance')
 
 
-class AccountViewSet(viewsets.ReadOnlyModelViewSet): # pylint: disable=R0901
+class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
     """ Allows users to interact with the Account object"""
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
-
-    def list(self, request, *args, **kwargs):
-        # No use case yet, overridden
-        raise exceptions.NotFound()
-
-    def retrieve(self, request, *args, **kwargs):
-        # No use case yet, overridden
-        raise exceptions.NotFound()
 
     @action(detail=True, methods=['get'])
     def balance(self, request, pk=None): #pylint: disable=C0103
