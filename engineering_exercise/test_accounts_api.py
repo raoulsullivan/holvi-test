@@ -25,9 +25,12 @@ class AccountViewsTestCase(TestCase):
             for j in range(2):
                 account = Account.objects.create(user=user, name='Account {}'.format(j), balance=0)
                 for k in range(5):
+                    delta = 4 - k
+                    today = datetime.datetime.today().date()
+                    transaction_date = today - datetime.timedelta(days=delta)
                     Transaction.objects.create(
                         account=account,
-                        transaction_date=datetime.datetime.today().date(),
+                        transaction_date=transaction_date,
                         amount=1,
                         active=True,
                         description='Transaction {}'.format(k),
@@ -55,10 +58,23 @@ class AccountViewsTestCase(TestCase):
         url = reverse('account-balance', args=(account.uuid,))
         self.client.login(username=self.superuser.username, password='derp')
         response = self.client.get(url)
-        expected_response = {
-            'uuid': str(account.uuid),
-            'balance': '5.00',
-        }
+        expected_response = Decimal('5.00')
+        self.assertEqual(response.json(), expected_response)
+
+    def test_account_balance_at_date(self):
+        """ Tests the behaviour of the 'date' parameter """
+        account = Account.objects.first()
+        url = reverse('account-balance', args=(account.uuid,))
+        self.client.login(username=self.superuser.username, password='derp')
+        response = self.client.get(url, {'date': '2020-10-a'})
+        self.assertEqual(response.status_code, 400)
+        today = datetime.datetime.today().date()
+        response = self.client.get(url, {'date': str(today)})
+        expected_response = Decimal('5.00')
+        self.assertEqual(response.json(), expected_response)
+        today_minus_3 = today - datetime.timedelta(days=3)
+        response = self.client.get(url, {'date': str(today_minus_3)})
+        expected_response = Decimal('2.00')
         self.assertEqual(response.json(), expected_response)
 
     def test_transactions_get(self):
@@ -73,10 +89,12 @@ class AccountViewsTestCase(TestCase):
         most_recent_transaction = account.transactions.order_by(
             '-create_time', '-transaction_date'
         ).first()
+        today = datetime.datetime.today().date()
+        self.assertEqual(most_recent_transaction.transaction_date, today)
         expected_response = {
             'uuid': str(most_recent_transaction.uuid),
             'account': str(account.uuid),
-            'transaction_date': datetime.datetime.today().date().isoformat(),
+            'transaction_date': today.isoformat(),
             'amount': '1.00',
             'description': 'Transaction 4',
             'active': True,

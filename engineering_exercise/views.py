@@ -2,6 +2,7 @@
 
 Implementations of the Django REST framework pattern
 """
+import datetime
 from rest_framework import serializers, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -21,13 +22,6 @@ class AccountSerializer(serializers.ModelSerializer):
         """ All fields """
         model = Account
         fields = ('url', 'uuid', 'name', 'user', 'balance')
-
-class AccountBalanceSerializer(serializers.HyperlinkedModelSerializer):
-    """ Serialises the Balance information for an Account only. """
-    class Meta: #pylint: disable=R0903
-        """ Only Balance and UUID """
-        model = Account
-        fields = ('uuid', 'balance')
 
 class TransactionSerializer(serializers.ModelSerializer):
     """ Serialises the base information regarding a Transaction """
@@ -59,12 +53,33 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
     serializer_class = AccountSerializer
 
 
+    @staticmethod
+    def _calculate_balance_at_date(account, date):
+        """ Returns the sum of the amount of all active transactions
+        made on or before the date on a given account """
+        transactions = Transaction.objects.filter(
+            account=account, transaction_date__lte=date, active=True
+        ).all()
+        balance = sum(x.amount for x in transactions)
+        return balance
+
+
     @action(detail=True, methods=['get'])
     def balance(self, request, pk=None): #pylint: disable=C0103
-        """ Retrieves the balance"""
+        """ Returns the current balance for the Account as a decimal.
+        If you specify the 'date' ('%Y-%m-%d') as a query parameter
+        it will return the balance at the close of that date."""
         account = self.get_object()
-        serializer = AccountBalanceSerializer(account, many=False)
-        return Response(serializer.data)
+        date_string = request.query_params.get('date')
+        if date_string:
+            try:
+                date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
+            except ValueError as err:
+                raise serializers.ValidationError(str(err)) from err
+            balance = self._calculate_balance_at_date(account, date)
+        else:
+            balance = account.balance
+        return Response(balance)
 
 
     def _transactions_get(self, request, account):
