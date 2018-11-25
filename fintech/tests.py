@@ -62,6 +62,47 @@ class TestTransactionAmountProtection(TestCase):
         self.assertEqual(self.account.balance, 0)
         self.assertEqual(Transaction.objects.count(), 0)
 
+    def test_cannot_edit_transaction_to_be_illegal(self):
+        transaction_1 = Transaction.objects.create(
+            account=self.account,
+            transaction_date=datetime.datetime.today().date(),
+            amount=Decimal('10.00'),
+            active=True,
+            description='Test transaction',
+        )
+        transaction_2 = Transaction.objects.create(
+            account=self.account,
+            transaction_date=datetime.datetime.today().date(),
+            amount=Decimal('20.00'),
+            active=True,
+            description='Test transaction 2',
+        )
+        transaction_2.amount = Decimal('-20.00')
+        with self.assertRaises(AccountBalanceError):
+            transaction_2.save()
+        transaction_2.active = False
+        transaction_2.save()
+
+    def test_cannot_delete_transaction_illegally(self):
+        transaction_1 = Transaction.objects.create(
+            account=self.account,
+            transaction_date=datetime.datetime.today().date(),
+            amount=Decimal('10.00'),
+            active=True,
+            description='Test transaction',
+        )
+        transaction_2 = Transaction.objects.create(
+            account=self.account,
+            transaction_date=datetime.datetime.today().date(),
+            amount=Decimal('-5.00'),
+            active=True,
+            description='Test transaction 2',
+        )
+        with self.assertRaises(AccountBalanceError):
+            transaction_1.delete()
+        transaction_2.active = False
+        transaction_2.save()
+        transaction_1.delete()
 
 class TestPopulateSampleDataCommand(TestCase):
     def test_populate_sample_data_command(self):
