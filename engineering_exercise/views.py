@@ -22,13 +22,6 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('url', 'uuid', 'name', 'user', 'balance')
 
-class AccountBalanceSerializer(serializers.HyperlinkedModelSerializer):
-    """ Serialises the Balance information for an Account only. """
-    class Meta: #pylint: disable=R0903
-        """ Only Balance and UUID """
-        model = Account
-        fields = ('uuid', 'balance')
-
 class TransactionSerializer(serializers.ModelSerializer):
     """ Serialises the base information regarding a Transaction """
     class Meta: #pylint: disable=R0903
@@ -61,10 +54,9 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
 
     @action(detail=True, methods=['get'])
     def balance(self, request, pk=None): #pylint: disable=C0103
-        """ Retrieves the balance"""
+        """ Retrieves the balance for the Account as a decimal """
         account = self.get_object()
-        serializer = AccountBalanceSerializer(account, many=False)
-        return Response(serializer.data)
+        return Response(account.balance)
 
 
     def _transactions_get(self, request, account):

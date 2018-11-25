@@ -55,10 +55,7 @@ class AccountViewsTestCase(TestCase):
         url = reverse('account-balance', args=(account.uuid,))
         self.client.login(username=self.superuser.username, password='derp')
         response = self.client.get(url)
-        expected_response = {
-            'uuid': str(account.uuid),
-            'balance': '5.00',
-        }
+        expected_response = Decimal('5.00')
         self.assertEqual(response.json(), expected_response)
 
     def test_transactions_get(self):
