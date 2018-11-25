@@ -2,19 +2,17 @@
 
 Implementations of the Django REST framework pattern
 """
-import copy
 from rest_framework import serializers, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from fintech.models import Account, Transaction
+from fintech.errors import AccountBalanceError
 
 class AccountBalanceValidationError(serializers.ValidationError):
+    """ For validation errors involving the Account balance """
     pass
-
-def account_balance_validator(value):
-    raise AccountBalanceValidationError('derp')
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -46,7 +44,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             'create_time',
             'update_time',
         )
-        #validators = [account_balance_validator]
         extra_kwargs = {
             'uuid': {'read_only': True},
             'account': {'read_only': True},
@@ -100,7 +97,10 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
             transaction = Transaction(**serializer.validated_data)
             transaction.active = True
             transaction.account = account
-            transaction.save()
+            try:
+                transaction.save()
+            except AccountBalanceError as err:
+                raise AccountBalanceValidationError(str(err)) from err
             serializer = self.serializer_class(transaction, many=False)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -110,7 +110,7 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
     def transactions(self, request, pk=None): #pylint: disable=C0103
         """ For interacting with Transactions on this Account
         GET - Retrieves the Transaction listing for the Account
-            Ordered with most recently transacted first
+            Ordered by most recently transacted first
         POST - Creates a new Transaction on the Account. Send:
             {
                 'transaction_date': '%Y-%m-%d',

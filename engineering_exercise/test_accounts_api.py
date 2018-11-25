@@ -121,3 +121,24 @@ class AccountViewsTestCase(TestCase):
         # And check account balance is updated
         expected_balance = old_balance + new_transaction_amount_decimal
         self.assertEqual(new_transaction.account.balance, expected_balance)
+
+    def test_illegal_transaction_post(self):
+        """ Transaction that takes account balance negative should fail to POST """
+        account = Account.objects.first()
+        old_balance = copy.copy(account.balance)
+        url = reverse('account-transactions', args=(account.uuid,))
+        self.client.login(username=self.superuser.username, password='derp')
+
+        new_transaction_date = datetime.datetime.today().date() - datetime.timedelta(days=5)
+        new_transaction_amount_string = '-300.30'
+        new_transaction_amount_float = float(new_transaction_amount_string)
+        new_transaction_description = 'New transaction'
+        new_transaction_data = {
+            'transaction_date': new_transaction_date,
+            'amount': new_transaction_amount_float,
+            'description': new_transaction_description
+        }
+        response = self.client.post(url, data=new_transaction_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Transaction.objects.count(), 100)
+        self.assertEqual(account.balance, old_balance)
