@@ -52,7 +52,6 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
 
-
     @staticmethod
     def _calculate_balance_at_date(account, date):
         """ Returns the sum of the amount of all active transactions
@@ -123,16 +122,7 @@ class AccountViewSet(viewsets.GenericViewSet): # pylint: disable=R0901
 
     @action(detail=True, methods=['get', 'post'])
     def transactions(self, request, pk=None): #pylint: disable=C0103
-        """ For interacting with Transactions on this Account
-        GET - Retrieves the Transaction listing for the Account
-            Ordered by most recently transacted first
-        POST - Creates a new Transaction on the Account. Send:
-            {
-                'transaction_date': '%Y-%m-%d',
-                'amount': decimal, 15 digits, 2 decimal places,
-                'description': 20 characters,
-            }.
-        """
+        """ For interacting with Transactions on this Account"""
         self.serializer_class = TransactionSerializer
         account = self.get_object()
 

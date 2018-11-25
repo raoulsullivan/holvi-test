@@ -11,7 +11,7 @@ I think you wanted this done with a Django REST validator. I don't want to use a
 
 General improvments
 ===
-* More metadata for the API - I don't know my way around REST framework enough to show off here
+* More metadata for the API - I don't know my way around REST framework enough to show off here, 'options' isn't working properly for me.
 * Tests are a bit rough and ready - could be split into smaller unit tests rather than these use-case based ones
 
 
@@ -27,9 +27,21 @@ I did this at the API rather than model level, as 'balance at a specific date' s
 
 ## Authentication and audit:
 ### 1. Describe or implement authentication and authorisation solution for above APIs.
-I'd go for a token auth system. Customer logs in and creates a token via a web interface, customer then chooses a 3rd party service from a list and gives token to communicate with our API. 3rd party service authenticates itself using the customers's token (and possible whitelisting...). This allows us to revoke tokens at the service level, or for the customer to revoke individual access. System could be extended to allow us/the customer to specify levels of access, etc...
+Depends on the use case - we already have authentication and authorisation in this example, via Django REST HTTP auth coupled with Django Users/Groups. So we could create a user for the 3rd party app, give it the permissions through the Django interface, and tell them to authenticate using username/password. Good enough for proof of concept.
+
+However, I'd go for a token auth system. Customer logs in and creates a token via a web interface, customer then chooses a 3rd party service from a list and gives token to communicate with our API. 3rd party service authenticates itself using the customers's token (and possible whitelisting...). This allows us to revoke tokens at the service level, or for the customer to revoke individual access. System could be extended to allow us/the customer to specify levels of access dependent on the 3rd party, etc...
+
+Or OAuth or similar - not sure about setting this up, so will shut up now.
 
 ### 2. Describe or implement an audit system for above APIs (a solution which allows one to see who did what in the system).
+So out of time for this. I can think of several ways:
+
+1. Request-level logging (Django-requests) including request data, possibly via ELK stack or similar, or JSON into PostGRES. Easy to set up, covers all routes in via the Django app, separate to the main data model, but difficult to join to main objects. More useful for 'forensic' than day to day use (e.g. "we have a problem with account X, what happened?" rather than "how many accounts have been read more than 3 times on a Sunday?")
+2a. Separate audit table for each object (create via a common base class for the object), containing all the fields plus some metadata (user, session, IP) etc. Log to this on model save / delete etc. Trouble with this is it would tie fintech app to the API app very thoroughly. But it could be used to check for changes from multiple sources.
+2b. What about a 'snapshots' feature, whereby the objects in each table are unique on uuid _and_ creation time. Updating them creates a new snapshot, retrieving them gets the latest snapshot. This gets very messy with queries, you need to be careful with prefetches, but is nice for objects that you expect to go through many revisions (e.g. documents). Not, however, Transactions!
+3. A custom-built logging system for the API app, recording stuff that's API specific (user, session, IP, auth mechanism) plus blobs of submitted data. Log to this from the API views themselves. Trouble with this is you risk 'missing' a view or method. On the plus side, it's easy to present the information.
+
+In this case I'd go for 1 until we have specific use/audit cases, then build 3 to suit _whilst keeping 1_.
 
 ## Devops:
 ### 2. Descrbe how you would implement CI for the application.
