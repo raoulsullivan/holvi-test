@@ -9,12 +9,19 @@ Challenges to requirements:
 I think you wanted this done with a Django REST validator. I don't want to use a validator here as I think the business logic here should be enforced at a lower level than the API (Accounts shouldn't go into zero regardless of the method used to create the Transaction). Also it's really messy as the account isn't available to the validator in the way I've chosen to build the view and serialiser.
 
 
+General improvments
+===
+* More metadata for the API - I don't know my way around REST framework enough to show off here
+* Tests are a bit rough and ready - could be split into smaller unit tests rather than these use-case based ones
+
+
 Optional tasks
 ===
 
 ##Client & features:
 ###3. Implement operations personnel access to the system. The system should allow operation personnel to find and view details of users, accounts and transactions, and to do corrections to the data.
 ###4. Implement a change to the account balance API so that it's possible to query the balance of the account at end of given date.
+I did this at the API rather than model level, as 'balance at a specific date' seems to be a function of the API rather than the underlying business logic (unlike the validation!). Could move it to a method on account model.
 
 ##Authentication and audit:
 ###1. Describe or implement authentication and authorisation solution for above APIs.

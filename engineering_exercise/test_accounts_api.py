@@ -60,7 +60,7 @@ class AccountViewsTestCase(TestCase):
         self.assertEqual(response.json(), expected_response)
 
     def test_account_balance_at_date(self):
-        """ The balance view should do what it says on the tin """
+        """ Tests the behaviour of the 'date' parameter """
         account = Account.objects.first()
         url = reverse('account-balance', args=(account.uuid,))
         self.client.login(username=self.superuser.username, password='derp')
