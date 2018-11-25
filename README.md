@@ -24,7 +24,6 @@ See requirements.txt, but it's Django
 ## Database
 SQLlite.
 1. Use `python manage.py migrate` to set up.
-2. Create an initial user with `python manage.py createsuperuser`
 
 
 ## Change control
@@ -42,8 +41,14 @@ Uses django test framework (unittest) `python manage.py test engineering_exercis
 
 ## Running the project
 It's Django, so:
+1. Get your database set up
 1. Change to your virtual environment
-2. `python manage.py runserver`
+1. Create a superuser `python manage.py createsuperuser`
+1. Populate some sample data `python manage.py populate_sample_data`
+1. Start the server `python manage.py runserver`
+1. Navigate to `http://localhost:8000/`
+1. Log in as the superuser
+1. Navigate to `http://localhost:8000/account/<UUID>/balance/`
 
 
 ## TODOs

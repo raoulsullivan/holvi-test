@@ -2,6 +2,7 @@
 
 import datetime
 from decimal import Decimal
+from django.core.management import call_command
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -60,3 +61,11 @@ class TestTransactionAmountProtection(TestCase):
             )
         self.assertEqual(self.account.balance, 0)
         self.assertEqual(Transaction.objects.count(), 0)
+
+
+class TestPopulateSampleDataCommand(TestCase):
+    def test_populate_sample_data_command(self):
+        call_command('populate_sample_data', number_customers=3, accounts_per_customer=3, transactions_per_account=3)
+        self.assertEqual(User.objects.count(), 3)
+        self.assertEqual(Account.objects.count(), 9)
+        self.assertEqual(Transaction.objects.count(), 27)
