@@ -6,7 +6,7 @@ Challenges to requirements:
 * Why not return more information than just balance? Why have a separate endpoint for balance?
 
 ## 3. Implement an API to POST a new transaction to account.
-I think you wanted this done with a Django REST validator. I don't want to use a validator here as I think the business logic here should be enforced at a lower level than the API (Accounts shouldn't go into zero regardless of the method used to create the Transaction). Also it's really messy as the account isn't available to the validator in the way I've chosen to build the view and serialiser.
+I think you wanted the validation done with a Django REST validator. I don't want to use a validator here as I think the business logic here should be enforced at a lower level than the API (Accounts shouldn't go into zero regardless of the method used to create the Transaction). Also it's really messy as the account isn't available to the validator in the way I've chosen to build the view and serialiser. So I built in in /fintech at the model level and caught the error at the API level.
 
 
 General improvments
@@ -37,11 +37,11 @@ Or OAuth or similar - not sure about setting this up, so will shut up now.
 So out of time for this. I can think of several ways:
 
 1. Request-level logging (Django-requests) including request data, possibly via ELK stack or similar, or JSON into PostGRES. Easy to set up, covers all routes in via the Django app, separate to the main data model, but difficult to join to main objects. More useful for 'forensic' than day to day use (e.g. "we have a problem with account X, what happened?" rather than "how many accounts have been read more than 3 times on a Sunday?")
-2a. Separate audit table for each object (create via a common base class for the object), containing all the fields plus some metadata (user, session, IP) etc. Log to this on model save / delete etc. Trouble with this is it would tie fintech app to the API app very thoroughly. But it could be used to check for changes from multiple sources.
-2b. What about a 'snapshots' feature, whereby the objects in each table are unique on uuid _and_ creation time. Updating them creates a new snapshot, retrieving them gets the latest snapshot. This gets very messy with queries, you need to be careful with prefetches, but is nice for objects that you expect to go through many revisions (e.g. documents). Not, however, Transactions!
-3. A custom-built logging system for the API app, recording stuff that's API specific (user, session, IP, auth mechanism) plus blobs of submitted data. Log to this from the API views themselves. Trouble with this is you risk 'missing' a view or method. On the plus side, it's easy to present the information.
+2. Separate audit table for each object (create via a common base class for the object), containing all the fields plus some metadata (user, session, IP) etc. Log to this on model save / delete etc. Trouble with this is it would tie fintech app to the API app very thoroughly. But it could be used to check for changes from multiple sources.
+3. What about a 'snapshots' feature, whereby the objects in each table are unique on uuid _and_ creation time. Updating them creates a new snapshot, retrieving them gets the latest snapshot. This gets very messy with queries, you need to be careful with prefetches, but is nice for objects that you expect to go through many revisions (e.g. documents). Not, however, Transactions!
+4. A custom-built logging system for the API app, recording stuff that's API specific (user, session, IP, auth mechanism) plus blobs of submitted data. Log to this from the API views themselves. Trouble with this is you risk 'missing' a view or method. On the plus side, it's easy to present the information.
 
-In this case I'd go for 1 until we have specific use/audit cases, then build 3 to suit _whilst keeping 1_.
+In this case I'd go for 1 until we have specific use/audit cases, then build 4 to suit _whilst keeping 1_.
 
 ## Devops:
 ### 2. Descrbe how you would implement CI for the application.
