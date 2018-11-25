@@ -37,7 +37,7 @@ Pylintrc included `pylint --load-plugins pylint_django engineering_exercise/`
 
 
 ## Tests
-Uses django test framework (unittest) `python manage.py test engineering_exercise`
+Uses django test framework (unittest) `python manage.py test engineering_exercise fintech`
 
 
 ## Running the project

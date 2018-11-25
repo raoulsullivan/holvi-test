@@ -23,7 +23,7 @@ class AccountViewsTestCase(TestCase):
         for i in range(10):
             user = User.objects.create_user(username='Test user {}'.format(i))
             for j in range(2):
-                account = Account.objects.create(user=user, name='Account {}'.format(j), balance=5)
+                account = Account.objects.create(user=user, name='Account {}'.format(j), balance=0)
                 for k in range(5):
                     Transaction.objects.create(
                         account=account,
