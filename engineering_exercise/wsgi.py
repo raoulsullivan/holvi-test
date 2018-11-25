@@ -1,5 +1,5 @@
 """
-WSGI config for transactionapi project.
+WSGI config for engineering_exercise project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transactionapi.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'engineering_exercise.settings')
 
 application = get_wsgi_application() #pylint: disable=C0103
