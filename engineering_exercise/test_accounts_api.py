@@ -25,7 +25,8 @@ class AccountViewsTestCase(TestCase):
             for j in range(2):
                 account = Account.objects.create(user=user, name='Account {}'.format(j), balance=0)
                 for k in range(5):
-                    transaction_date = datetime.datetime.today().date() - datetime.timedelta(days=k)
+                    delta = 4 - k
+                    transaction_date = datetime.datetime.today().date() - datetime.timedelta(days=delta)
                     Transaction.objects.create(
                         account=account,
                         transaction_date=transaction_date,
@@ -87,10 +88,12 @@ class AccountViewsTestCase(TestCase):
         most_recent_transaction = account.transactions.order_by(
             '-create_time', '-transaction_date'
         ).first()
+        today = datetime.datetime.today().date()
+        self.assertEqual(most_recent_transaction.transaction_date, today)
         expected_response = {
             'uuid': str(most_recent_transaction.uuid),
             'account': str(account.uuid),
-            'transaction_date': datetime.datetime.today().date().isoformat(),
+            'transaction_date': today.isoformat(),
             'amount': '1.00',
             'description': 'Transaction 4',
             'active': True,
