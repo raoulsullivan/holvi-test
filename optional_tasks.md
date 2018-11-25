@@ -20,11 +20,15 @@ Optional tasks
 
 ## Client & features:
 ### 3. Implement operations personnel access to the system. The system should allow operation personnel to find and view details of users, accounts and transactions, and to do corrections to the data.
+Added via Django admin with a pretty random set of features. You can search, edit, view etc...
+
 ### 4. Implement a change to the account balance API so that it's possible to query the balance of the account at end of given date.
 I did this at the API rather than model level, as 'balance at a specific date' seems to be a function of the API rather than the underlying business logic (unlike the validation!). Could move it to a method on account model.
 
 ## Authentication and audit:
 ### 1. Describe or implement authentication and authorisation solution for above APIs.
+I'd go for a token auth system. Customer logs in and creates a token via a web interface, customer then chooses a 3rd party service from a list and gives token to communicate with our API. 3rd party service authenticates itself using the customers's token (and possible whitelisting...). This allows us to revoke tokens at the service level, or for the customer to revoke individual access. System could be extended to allow us/the customer to specify levels of access, etc...
+
 ### 2. Describe or implement an audit system for above APIs (a solution which allows one to see who did what in the system).
 
 ## Devops:
