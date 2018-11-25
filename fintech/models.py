@@ -1,6 +1,6 @@
 """ Models for the fintech app """
 import uuid
-from django.db import models, transaction
+from django.db import models
 
 from .errors import AccountBalanceError
 
@@ -62,5 +62,5 @@ class Transaction(models.Model):
                 'Balance of account {} would be brought below 0'.format(self.account)
             )
         instance = super().save(*args, **kwargs) #pylint: disable=E1128
-        transaction.on_commit(self.account.update_balance())
+        self.account.update_balance()
         return instance
