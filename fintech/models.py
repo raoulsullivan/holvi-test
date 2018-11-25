@@ -54,13 +54,37 @@ class Transaction(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
+
     def save(self, *args, **kwargs): #pylint: disable=W0221
         """ Checks if a Transaction will bring the Account balance below 0 before save """
-        existing_balance = self.account.calculated_balance
-        if (existing_balance + self.amount) < 0:
+        created = not self.uuid
+        if created:
+            existing_balance = self.account.calculated_balance
+        else:
+            all_other_active_transactions = [x for x in self.account.transactions.all() if x != self and x.active]
+            existing_balance = sum(x.amount for x in all_other_active_transactions)
+
+        if not self.active:
+            pass
+        elif (existing_balance + self.amount) < 0:
             raise AccountBalanceError(
                 'Balance of account {} would be brought below 0'.format(self.account)
             )
-        instance = super().save(*args, **kwargs) #pylint: disable=E1128
+
+        instance = super().save(*args, **kwargs)
         self.account.update_balance()
         return instance
+
+
+    def delete(self):
+        """ Checks if deleting a Transaction will bring the balance below 0 """
+        existing_balance = self.account.calculated_balance
+
+        if not self.active:
+            pass
+        elif (existing_balance - self.amount) < 0:
+            raise AccountBalanceError(
+                'Balance of account {} would be brought below 0'.format(self.account)
+            )
+
+        super().delete()
