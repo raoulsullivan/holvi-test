@@ -1,5 +1,8 @@
-from django.db import models
+""" Models for the fintech app """
 import uuid
+from django.db import models, transaction
+
+from .errors import AccountBalanceError
 
 
 class Account(models.Model):
@@ -18,6 +21,18 @@ class Account(models.Model):
     balance = models.DecimalField(max_digits=15, decimal_places=2)
     # TODO - decimals probably a bad idea - store int instead
     user = models.ForeignKey('auth.User', on_delete=models.PROTECT)
+
+    def update_balance(self):
+        """ Refreshes the balance from calculated_balance """
+        if self.calculated_balance < 0:
+            raise AccountBalanceError('calculated_balance on account {} is below 0'.format(self))
+        self.balance = self.calculated_balance
+        self.save()
+
+    @property
+    def calculated_balance(self):
+        """ Calculates the balance from active related Transactions """
+        return sum(x.amount for x in self.transactions.all() if x.active)
 
 
 class Transaction(models.Model):
@@ -38,3 +53,14 @@ class Transaction(models.Model):
     active = models.BooleanField()
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs): #pylint: disable=W0221
+        """ Checks if a Transaction will bring the Account balance below 0 before save """
+        existing_balance = self.account.calculated_balance
+        if (existing_balance + self.amount) < 0:
+            raise AccountBalanceError(
+                'Balance of account {} would be brought below 0'.format(self.account)
+            )
+        instance = super().save(*args, **kwargs) #pylint: disable=E1128
+        transaction.on_commit(self.account.update_balance())
+        return instance
