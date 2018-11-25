@@ -25,9 +25,10 @@ class AccountViewsTestCase(TestCase):
             for j in range(2):
                 account = Account.objects.create(user=user, name='Account {}'.format(j), balance=0)
                 for k in range(5):
+                    transaction_date = datetime.datetime.today().date() - datetime.timedelta(days=k)
                     Transaction.objects.create(
                         account=account,
-                        transaction_date=datetime.datetime.today().date(),
+                        transaction_date=transaction_date,
                         amount=1,
                         active=True,
                         description='Transaction {}'.format(k),
@@ -56,6 +57,22 @@ class AccountViewsTestCase(TestCase):
         self.client.login(username=self.superuser.username, password='derp')
         response = self.client.get(url)
         expected_response = Decimal('5.00')
+        self.assertEqual(response.json(), expected_response)
+
+    def test_account_balance_at_date(self):
+        """ The balance view should do what it says on the tin """
+        account = Account.objects.first()
+        url = reverse('account-balance', args=(account.uuid,))
+        self.client.login(username=self.superuser.username, password='derp')
+        response = self.client.get(url, {'date': '2020-10-a'})
+        self.assertEqual(response.status_code, 400)
+        today = datetime.datetime.today().date()
+        response = self.client.get(url, {'date': str(today)})
+        expected_response = Decimal('5.00')
+        self.assertEqual(response.json(), expected_response)
+        today_minus_3 = today - datetime.timedelta(days=3)
+        response = self.client.get(url, {'date': str(today_minus_3)})
+        expected_response = Decimal('2.00')
         self.assertEqual(response.json(), expected_response)
 
     def test_transactions_get(self):
