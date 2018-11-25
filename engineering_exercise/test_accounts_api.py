@@ -26,7 +26,8 @@ class AccountViewsTestCase(TestCase):
                 account = Account.objects.create(user=user, name='Account {}'.format(j), balance=0)
                 for k in range(5):
                     delta = 4 - k
-                    transaction_date = datetime.datetime.today().date() - datetime.timedelta(days=delta)
+                    today = datetime.datetime.today().date()
+                    transaction_date = today - datetime.timedelta(days=delta)
                     Transaction.objects.create(
                         account=account,
                         transaction_date=transaction_date,
